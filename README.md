@@ -1,154 +1,125 @@
 # cpp-spreadsheet
-Дипломный проект: Электронная таблица
+Project: Spreadsheet<br>
+<br>
+Read in other languages: [English](README.md), [Русский](README.RUS.md)<br>
 
-Читать на других языках: [English](README.md), [Русский](README.RUS.md)
+# The description
+of the Spreadsheet program is a simplified analogue of existing solutions: a Microsoft Excel spreadsheet or Google Sheets. The table cells can contain text or formulas. Formulas, as in existing solutions, can contain cell indexes.<br>
 
-# Описание программы
-«Электронная таблица»‎ это упрощённый аналог существующих решений: лист таблицы Microsoft Excel или Google Sheets. В ячейках таблицы могут быть текст или формулы. Формулы, как и в существующих решениях, могут содержать индексы ячеек.
-
-# Сборка при помощи Cmake
+# Build using Cmake
 To build this project on linux you need:<br>
-1)If you don't have Cmake installed, install Cmake<br>
-2)
-
-2)If the "Debug" or "Release" folders are not created:<br>
+1) If you don't have Cmake installed, install Cmake<br>
+2) [ANTLR](https://www.antlr.org/) is used during the program operation<br>
+ANTLR is written in Java, so you will need Java to work with it:<br>
+Install **Java SE Runtime Environment**. This is necessary for the "Spreadsheet" assembly.<br>
+3) If the "Debug" or "Release" folders are not created:<br>
 
 ```
 mkdir ../Debug
 mkdir ../Release
 ```
-3)Go to the `transport-catalog` folder and run the command for Debug and/or Release conf:<br>
-:exclamation: :exclamation: :exclamation:<br>
-Change `/path/to/protobuf/package` to the path to the protobuf you installed in the previous steps<br>
+4) Go to the `spreadsheet` folder and run the command for Debug and/or Release conf:<br>
 
 ```
 cmake -E chdir ../Debug/ cmake -G "Unix Makefiles" ../spreadsheet/ -DCMAKE_BUILD_TYPE:STRING=Debug
 cmake -E chdir ../Release/ cmake -G "Unix Makefiles" ../spreadsheet/ -DCMAKE_BUILD_TYPE:STRING=Release 
 ```
-4)Go to "Debug" or "Release" folder and build:<br>
+5) Go to "Debug" or "Release" folder and build:<br>
 
 ```
 cmake --build .
 ```
-**ALL in one command(Release)**:<br>
 
-```
-mkdir Release; cmake -E chdir Release/ cmake -G "Unix Makefiles" ../ -DCMAKE_BUILD_TYPE:STRING=Release && cmake --build Release/.
-```
-
-5)To **Run** program - in the debug or release folder run:<br>
+6) To **Run** program - in the debug or release folder run:<br>
 
 ```
 ./spreadsheet
 ```
-
-# Использование
-
-### Перед тем как начать:
-  0. Установка и настройкка всех требуемых компонентов в среде разработки длля запуска приложения
-  1. Вариант использования показан в main.cpp и при вызове `./transport_catalogue -help`
-  2. Примеры входных документов и ответы на них есть в папке `Examples`.
-
-## Описание возможностей:
-Ячейка таблицы задаётся своим индексом, то есть строкой вида “А1”, “С14” или “RD2”. Причём ячейка с индексом “А1” — это ячейка в левом верхнем углу таблицы. Количество строк и столбцов в таблице не превышает 16384. То есть предельная позиция ячейки — (16383, 16383) с индексом** “XFD16384”. Если позиция ячейки выходит за эти границы, то она не валидна по определению.
-
-Структура  Position в файле common.h. Она содержит поля introw и int col — номера строки и столбца ячейки в программном представлении. Используется для доступа к ячейкам.
-
-Используем абстрактное синтаксическое дерево, или AST, с которым вы уже работали в уроках по Mython.
-Абстрактное синтаксическое дерево не умеет ничего вычислять, но мы «научим»‎ его, задав новый функционал.
-
-Этапы вычисления
-Мы помним, что формула состоит из операндов и операций**. Чтобы вычислить её, нужно знать:
-Какие бывают операции и операнды:
-операции могут быть арифметическими (+, -, *, /), логическими (&, |, ⇒, ~);
-операнды могут быть числами (1, 5, 1000.01), булевыми переменными (TRUE, FALSE), константами (π, e, g, ν).
-
-(abstract syntax tree, AST).
-Для абстрактного синтаксического дерева мы можем сами определить классы-узлы и добавить в них метод для вычисления. Назовём его, например, GetValue().
-
-ANTLR — это специальная программа, которая сгенерирует для нас код лексического и синтаксического анализаторов, а также код для обхода дерева разбора на С++.
-
-
-
-
-Индексы
-Пользователь имеет доступ к ячейке по индексу, то есть по строке вида “А1” или “RD2”. Функции для конвертации: Position::FromString() и Position::ToString().
-
-Минимальная печатная область
-Чтобы напечатать таблицу, нужно знать размер минимальной печатной области. Это минимальная прямоугольная область с вершиной в ячейке A1, содержащая все непустые ячейки.
-Структура Size определена в файле common.h. Она содержит количество строк и столбцов в минимальной печатной области.
-
-Методы, обращающиеся к ячейке по индексу:
- - SetCell(Position, std::string) задаёт содержимое ячейки по индексу Position. Если ячейка пуста, надо её создать. Нужно задать ячейке текст методом Cell::Set(std::string);
- - Cell* GetCell(Position pos) константный и неконстантный геттеры, которые возвращают указатель на ячейку, расположенную по индексу pos. Если ячейка пуста, возвращают nullptr;
- - void ClearCell(Position pos) очищает ячейку по индексу. Последующий вызов GetCell() для этой ячейки вернёт nullptr. При этом может измениться размер минимальной печатной области.
-
-Методы, применимые к таблице целиком:
- - Size GetPrintableSize() определяет размер минимальной печатной области. Специально для него в файле common.h и определена структура Size. Она содержит количество строк и столбцов в минимальной печатной области.
- - Печать таблицы выводит в стандартный поток вывода std::ostream& минимальную прямоугольную печатную область. Ячейки из одной строки разделены табуляцией \t, в конце строки ставится символ перевода строки \n.
- - void PrintText(std::ostream&) выводит текстовые представления ячеек:
-для текстовых ячеек это текст, который пользователь задал в методе Set(), то есть не очищенный от ведущих апострофов ';
-для формульных это формула, очищенная от лишних скобок, как Formula::GetExpression(), но с ведущим знаком “=”.
- - void PrintValues(std::ostream&) выводит значения ячеек — строки, числа или FormulaError, — как это определено в Cells::GetValue(). 
-
-Вычисление значений в ячейках
-Рассмотрим пример. В ячейке С2 записана формула “=A3/A2”. Чтобы её вычислить, надо разделить значение ячейки А3 на значение ячейки А2.
-В ячейке А3 находится формула “=1+2*7”. Её легко вычислить: это 15.
-В ячейке A2 находится текст “3”. Формально ячейка не формульная. Но её текст можно интерпретировать как число. Поэтому предполагаем, что её значение 3.
-Результат 15/3=5.
-Если формула содержит индекс пустой ячейки, предполагаем, что значение пустой ячейки — 0.
-
-Ошибки вычисления
-В вычислениях могут возникнуть ошибки. Например, «‎деление на 0»‎. Если делитель равен 0, значение ячейки — ошибка FormulaError типа #DIV/0!
-
-Если ячейку, чей индекс входит в формулу, нельзя проинтерпретировать как число, возникает ошибка типа: FormulaError — нет значения #VALUE! 
-
-Формула может содержать ссылку на ячейку, которая выходит за границы возможного размера таблицы, например С2 (=А1234567+ZZZZ1). Такая формула может быть создана, но не может быть вычислена, поэтому её вычисление вернёт ошибку #REF!
-
-Ошибки распространяются вверх по зависимостям. Например: формула в С4 зависит от С2 (=С2+8). Формула в С2 выдала ошибку вычисления #VALUE! Значит, формула в С4 выдаст ту же ошибку при вычислении.
-
-Точно так же распространяются ошибки #DIV/0! и #REF! Если формула зависит от нескольких ячеек, каждая из которых содержит ошибку вычисления, результирующая ошибка может соответствовать любой из них.
-
-Циклические зависимости
-Таблица должна всегда оставаться корректной. Если ячейки циклически зависят друг от друга, мы не сможем вычислить значения ячеек. Поэтому нельзя позволить, чтобы возникли циклические зависимости между ячейками. То есть нельзя задать ячейку с формулой, которая вводит циклические зависимости. Программа выдаст исключение CircularDependencyException, а ячейка не изменится.
-
-
-Возможные ошибки и исключения
- - Некорректная формула. Если в ячейку методомSheet::SetCell() пытаются записать синтаксически некорректную формулу, например =A1+*, реализация выбросит исключение FormulaException, а значение ячейки не изменится. Формула считается синтаксически некорректной, если она не удовлетворяет предоставленной грамматике.
- - Некорректная позиция. Программно возможно создать экземпляр класса Position c некорректной позицией, например (-1, -1). Если пользователь передаёт её в методы, программа выдаст исключение InvalidPositionException. Методы интерфейсов — например Cell::GetReferencedCells() — всегда возвращает корректные позиции.
- - Циклическая зависимость. Если пользователь пытается в методе Sheet::SetCell() записать в ячейку формулу, которая привела бы к циклической зависимости, реализация выбросит исключение CircularDependencyException, а значение ячейки не изменится.
-
-# Системые требования:
+# System requirements:
   1. C++17(STL)
   2. GCC (MinG w64) 11.2.0  
   
-# Паны по доработке:
-1. Добавить UI
-2. Заменить библиотеку поиска маршрута
-3. Добавить возможность предложения нескольких путей на выбор
+# Plans for completion:
+1. Add UI<br>
+2. Add support for performing additional functions on cells<br>
+3. Add the ability to save and open tables to/from files.<br>
 
-# Стек технологий:
-  1. Хеш-функции, **unordered_map** и **unordered_set**
-  2. Деревья
-  3. **namespases**
-  4. JSON
-  5. Умные указатели **unique_ptr**, **shared_ptr** и **weak_ptr**
-  6. Наследование и полиморфизм, абстрактные классы, интерфейсы
-  7. Runtime-полиморфизм с std::variant, динамическое приведение типов
-  8. Immediately invoked lambda expression, **std::invoke**
-  9. **mutable**
- 10. Работа с путями и потоками: ввода/вывода, строковыми, для работы с файлами
- 11. Регулярноые выражения **std::regex**
- 12. RAII - "Resource Acquisition is Initialization”
- 13. **move**-семантика, Forwarding reference
- 14. Плотная упаковка, сериализация, десериализация, Google Protocol Buffers - Protobuf
- 15. Таблица виртуальных методов
+# Technology stack:
+1. ANTLR <br>
+2. AST - abstract syntax tree<br>
+3. Inheritance and polymorphism, abstract classes, interfaces<br>
+4. Search for cyclic dependencies<br>
+5. Data caching<br>
+6. Error handling<br>
+7. Unit testing<br>
 
-# Структура
-### Описание файлов программы
+# Using
 
-# Формат входных данных
+## Before you start:
+0. Installation and configuration of all required components in the development environment to run the application<br>
+1. The use case and tests are shown in main.cpp .<br>
 
+# Description of features:
+## Cells
+A table cell is defined by its index, that is, a row of the form “A1”, “C14” or “RD2". Moreover, the cell with the index “A1” is the cell in the upper left corner of the table. The number of rows and columns in the table does not exceed 16384. That is, the limit position of the cell is (16383, 16383) with the index “XFD16384". If the cell position goes beyond these boundaries, then it is not valid by definition.<br>
+<br>
+The **Position** structure in the common.h file. It contains the introw and int col fields — the row and column numbers of the cell in the program view. Used to access cells.<br>
 
+## Indexes
+The user has access to the cell by index, that is, by a row of the type “A1” or “RD2". Functions for conversion: `Position::FromString()` and `Position::ToString()`.<br>
 
+## Minimum print area
+To print a table, you need to know the size of the minimum printable area. This is a minimal rectangular area with a vertex in cell A1 containing all non-empty cells.<br>
+The **Size** structure is defined in the common.h file. It contains the number of rows and columns in the minimum printable area.<br>
 
+## Methods accessing a cell by index:
+ - `SetCell(Position, std::string)` sets the contents of the cell by the **Position** index. If the cell is empty, you need to create it. You need to set the cell text using the `Cell::Set(std::string)` method;<br>
+ - `Cell* GetCell(Position pos)` constant and non-constant getters that return a pointer to a cell located at the pos index. If the cell is empty, null ptr is returned;<br>
+ - void `ClearCell(Position pos)` clears the cell by index. A subsequent call to `GetCell()` for this cell will return nullptr. At the same time, the size of the minimum print area may change.<br>
+
+## Methods applicable to the entire table:
+- `Size GetPrintableSize()` determines the size of the minimum printable area. The **Size** structure is defined specifically for it in the common.h file. It contains the number of rows and columns in the minimum printable area.<br>
+ - Table printing outputs the minimum rectangular printed area to the standard output stream std::ostream&. Cells from one line are separated by a tab \t, a newline character \n is placed at the end of the line.<br>
+ - `void PrintText(std::ostream&)` outputs text representations of cells:<br>
+for text cells, this is the text that the user specified in the `Set()` method, that is, not cleared of leading apostrophes';<br>
+for formula cells, this is a formula cleared of unnecessary parentheses, like `Formula::GetExpression()`, but with a leading sign “=".<br>
+ - `void PrintValues(std::ostream&)` outputs cell values — strings, numbers, or **FormulaError** — as defined in `Cells::GetValue()`. <br>
+
+## Calculating values in cells
+Consider an example. The formula “=A3/A2” is written in cell C2. To calculate it, you need to divide the value of cell A3 by the value of cell A2.<br>
+In cell A3 is the formula “=1+2*7 ”. It is easy to calculate: this is 15.<br>
+In cell A2 is the text “3". Formally, the cell is not formulaic. But its text can be interpreted as a number.<br> Therefore, we assume that its value is 3.<br>
+The result is 15/3=5.<br>
+If the formula contains the index of an empty cell, we assume that the value of the empty cell is 0.<br>
+
+## Possible errors and exceptions
+### Calculation errors
+Errors may occur in the calculations. For example, "division by 0". <br>
+If the divisor is 0, the cell value is a **FormulaError** error of type **#DIV/0!**<br>
+
+### Incorrect formula.
+If the cell whose index is included in the formula cannot be interpreted as a number, the error **#VALUE** occurs!<br>
+If in the cell by the method `Sheet::SetCell()` tries to write a syntactically incorrect formula, for example =A1+\*, the implementation throws a **FormulaException** exception, and the cell value does not change. A formula is considered syntactically incorrect if it does not satisfy the provided grammar. <br>
+
+## Incorrect position.
+The formula may contain a reference to a cell that goes beyond the limits of the possible size of the table, for example C2 (=A1234567+ZZZZ1). Such a formula can be created, but cannot be calculated, so its calculation will return an error **#REF!**<br>
+Programmatically, it is possible to create an instance of the Position class with an incorrect position, for example (-1, -1). If the user passes it to methods, the program will throw an **InvalidPositionException** exception. Interface methods — for example `Cell::GetReferencedCells()` — always returns the correct positions.<br>
+
+### Cyclic dependencies
+The table must always remain correct. If the cells are cyclically dependent on each other, we will not be able to calculate the cell values. Therefore, cyclic dependencies between cells cannot be allowed to occur.<br>
+If the user tries in the method `Sheet::SetCell()` write a formula to the cell that would lead to a cyclic dependency, the implementation throws a **CircularDependencyException** exception, and the value of the cell will not change.<br>
+
+Errors propagate up the dependencies. For example: the formula in C4 depends on C2 (=C2+8). The formula in C2 gave an error calculating **#VALUE!** So, the formula in C4 will give the same error when calculating.<br>
+
+The errors **#DIV/0!** and **#REF!** are distributed in the same way. If the formula depends on several cells, each of which contains a calculation error, the resulting error may correspond to any of them.<br>
+
+## Calculation stages
+The formula consists of operands and operations.<br>
+What are the operations and operands:<br>
+operations can be arithmetic (+, -, *, /), logical (&, |, ⇒, ~);< br>
+operands can be numbers (1, 5, 1000.01), Boolean variables (TRUE, FALSE), constants (π, e, g, v).<br>
+<br>
+(abstract syntax tree, AST).<br>
+For an abstract syntax tree, we can define node classes ourselves and add a method to them for calculation. Let's call it, for example, `GetValue()`.<br>
+<br>
+ANTLR is a special program that generates lexical and parser code, as well as code for traversing the parse tree in C++.<br>
