@@ -312,7 +312,6 @@ void TestCellReferences() {
 
 	// Ссылка на пустую ячейку
 	sheet->SetCell("B2"_pos, "=B1");
-	//ASSERT(sheet->GetCell("B1"_pos)->GetReferencedCells().empty());
 	ASSERT_EQUAL(sheet->GetCell("B2"_pos)->GetReferencedCells(), std::vector {
 			"B1"_pos });
 
